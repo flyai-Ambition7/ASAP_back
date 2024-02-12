@@ -38,12 +38,18 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "djongo",
-    # 앱
-    "asap",
-    # 라이브러리
     "rest_framework",
     "rest_framework_simplejwt",
+    # 앱
+    "asap",
+    "users",
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES' : (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -82,25 +88,9 @@ WSGI_APPLICATION = "config.wsgi.application"
 DATABASES = {
     'default': {
         'ENGINE': 'djongo',
-        'ENFORCE_SCHEMA': True,
-        'LOGGING': {
-            'version': 1,
-            'loggers': {
-                'djongo': {
-                    'level': 'DEBUG',
-                    'propogate': False,                        
-                }
-            },
-         },
         'NAME': 'asapDB',
-        'CLIENT': {
-            'host': '127.0.0.1',
-            'port': 27017,
-            'username': 'hi',
-            'password': "0000",
-            'authSource': 'admin',
-            'authMechanism': 'SCRAM-SHA-1'
-        }
+        'HOST': '127.0.0.1',
+        'PORT': 27017,
     }
 }
 
@@ -144,3 +134,5 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+AUTH_USER_MODEL = 'users.User'
