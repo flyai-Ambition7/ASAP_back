@@ -7,7 +7,7 @@ from .models import User
 from django.utils import timezone
 
 # Create your views here.
-class RegisterView(APIView):
+class SignupView(APIView):
     def post(self, request):
         serializer = UserSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
