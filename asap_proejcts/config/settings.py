@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     "djongo",
     "rest_framework",
     "rest_framework_simplejwt",
+    'rest_framework.authtoken',
+    "dj_rest_auth",
     # 앱
     "asap",
     "users",
