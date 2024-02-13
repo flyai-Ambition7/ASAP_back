@@ -4,7 +4,7 @@ from .models import User
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'password', 'name', 'email', 'phone']
+        fields = ['id', 'username', 'password', 'name', 'email', 'phone']
 
     def create(self, validated_data):
         # Convert 'id' to int if it exists in validated_data and is a valid integer
