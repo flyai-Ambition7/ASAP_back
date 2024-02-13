@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     'rest_framework.authtoken',
     "dj_rest_auth",
-    "corsheaders"
+    "corsheaders",
     # 앱
     "asap",
     "users",
