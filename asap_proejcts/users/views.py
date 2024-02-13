@@ -12,24 +12,3 @@ class RegisterView(APIView):
         serializer.save()
         return Response(serializer.data)
     
-class LoginView(APIView):
-    def post(self, request):
-        pass
-        email = request.data['email']
-        password = request.data['password']
-        
-        user = User.objects.filter(email=email).first()
-        
-        # user가 가입되어있지 않은 경우
-        if user is None:
-            raise AuthenticationFailed('User not found!')
-        
-        if not user.check_password(password):
-            raise AuthenticationFailed('Incorrect password!')
-        
-        return Response({
-            "message" : "success"
-        })
-    
-class LogoutView(APIView):
-    def 
