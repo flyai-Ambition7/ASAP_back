@@ -1,6 +1,10 @@
 # ASAP_back
 ASAP 백엔드
 
+```python
+pip install -r requirements.txt
+```
+
 # 커밋 룰
 
 **git 커밋 룰**을 이용해 **더 나은 로그 가독성, 리뷰 프로세스, 코드 유지 보수**를 하고자 한다.
