@@ -16,9 +16,10 @@ class ItemInfo(CommonInfo, models.Model):
     price =  models.IntegerField() # 상품 가격
     description = models.TextField() # 상품 설명
     business_hours = models.CharField(max_length=30, blank=True) # 가게 영업시간
-    location = models.CharField(max_length=100, blank= True) # 가게 위치
-    contact = models.CharField(max_length=20, blank= True) # 가게 전화번호
-
+    location = models.CharField(max_length=100, blank=True) # 가게 위치
+    contact = models.CharField(max_length=20, blank=True) # 가게 전화번호
+    summarized_copy = models.CharField(max_length=100, blank=True) # gpt를 이용해 생성된 광고문구
+    keyword = models.CharField(max_length=100, blank=True)
 
 # class ShopInfo(models.Model): # 가게를 홍보하는 경우
 # class EventInfo(models.Model) # 이벤트를 홍보하는 경우

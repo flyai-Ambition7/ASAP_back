@@ -4,7 +4,9 @@ from rest_framework import viewsets
 from rest_framework import generics, status
 from .models import CommonInfo, ItemInfo
 from .serializers import CommonInfoSerializer, ItemInfoSerializer
-from langchain import LangChain
+from langchain.chains import LLMChain
+from langchain.prompts import PromptTemplate
+from langchain_openai import OpenAI
 
 
 class CommonInfoViewSet(viewsets.ModelViewSet):
