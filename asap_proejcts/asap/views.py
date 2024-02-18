@@ -4,6 +4,8 @@ from rest_framework import viewsets
 from rest_framework import generics, status
 from .models import CommonInfo, ItemInfo
 from .serializers import CommonInfoSerializer, ItemInfoSerializer
+from langchain import LangChain
+
 
 class CommonInfoViewSet(viewsets.ModelViewSet):
     queryset = CommonInfo.objects.all()
