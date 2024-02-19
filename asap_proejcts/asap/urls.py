@@ -4,6 +4,7 @@ from .views import CommonInfoViewSet, ItemInfoViewSet
 
 router = routers.DefaultRouter()
 router.register(r'common-info', CommonInfoViewSet)
-router.register(r'iteminfo', ItemInfoViewSet)
+router.register(r'item-info', ItemInfoViewSet)
+
 
 urlpatterns = router.urls
