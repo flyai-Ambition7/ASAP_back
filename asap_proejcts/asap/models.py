@@ -9,7 +9,7 @@ class CommonInfo(models.Model):
     purpose = models.CharField(max_length=50, blank=False) # 사용 목적
     result_type = models.CharField(max_length=10, blank=False) # 결과물 형태
     theme = models.CharField(max_length=50, blank=False) #결과물 테마
-    
+
 # 상품을 홍보하는 경우    
 class ItemInfo(CommonInfo, models.Model):
     product_name = models.CharField(max_length=50, blank=False) # 상품명
