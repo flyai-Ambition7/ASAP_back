@@ -1,11 +1,11 @@
 from rest_framework import serializers
-from .models import CommonInfo, ItemInfo, ResultData
+from .models import ItemInfo, ResultData
 import base64
 
-# class CommonInfoSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = CommonInfo
-#         fields = '__all__'
+"""class CommonInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CommonInfo
+        fields = '__all__'"""
 
 class Base64ImageField(serializers.ImageField):   #디코딩 입력
     def to_internal_value(self, data):
