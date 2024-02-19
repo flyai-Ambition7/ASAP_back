@@ -18,7 +18,11 @@ class ItemInfo(CommonInfo, models.Model):
     business_hours = models.CharField(max_length=30, blank=True) # 가게 영업시간
     location = models.CharField(max_length=100, blank=True) # 가게 위치
     contact = models.CharField(max_length=20, blank=True) # 가게 전화번호
+
+class ResultData(models.Model):
     summarized_copy = models.CharField(max_length=100, blank=True) # gpt를 이용해 생성된 광고문구
+    keyword = models.CharField(max_length=100, blank=True) # gpt를 이용해 생성된 키워드
+    result_image_url = models.ImageField(blank=True, upload_to='result_image') # 최종 출력 이미지
 
 # class ShopInfo(models.Model): # 가게를 홍보하는 경우
 # class EventInfo(models.Model) # 이벤트를 홍보하는 경우
