@@ -28,6 +28,7 @@ env = environ.Env()
 environ.Env.read_env(env_file = os.path.join(BASE_DIR, '.env'))
 
 SECRET_KEY=env('SECRET_KEY')
+OPENAI_API_KEY = env('OPENAI_API_KEY')
 DEBUG = env('DEBUG')
 
 ALLOWED_HOSTS = ['*']
