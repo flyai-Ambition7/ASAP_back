@@ -36,7 +36,7 @@ class ItemInfoViewSet(viewsets.ModelViewSet):
                             Your copy must grab the reader's attention.
                             Your sentence should reflect the characteristics of the product well.
                             You must translate {product_name} into English if was entered in Korean.
-                            The copy should be based on the {theme} mood, and final copy must be written in English and no longer than 30 characters.
+                            The copy should be based on the {theme} mood, and final copy must be written in English and no longer than 80 characters.
                             """
                             
         prompt = PromptTemplate(template=prompt_template, 
