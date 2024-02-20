@@ -1,19 +1,19 @@
 from rest_framework import serializers
-from .models import CommonInfo, ItemInfo, ResultData
+from .models import ItemInfo, ResultData
+from django.core.files.base import ContentFile
+import base64
+import six
+import uuid
 import base64
 
-# class CommonInfoSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = CommonInfo
-#         fields = '__all__'
+"""class CommonInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CommonInfo
+        fields = '__all__'"""
 
 class Base64ImageField(serializers.ImageField):   #디코딩 입력
     def to_internal_value(self, data):
-        from django.core.files.base import ContentFile
-        import base64
-        import six
-        import uuid
-       
+
         if isinstance(data, six.string_types):
             # Check if the base64 string is in the "data:" format
             if 'data:' in data and ';base64,' in data:
