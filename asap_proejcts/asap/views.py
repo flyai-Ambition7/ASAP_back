@@ -61,6 +61,7 @@ class ItemInfoViewSet(viewsets.ModelViewSet):
                         'item_info': item_info_serializer.data,
                         'result_data': result_data_serializer.data
                         }, status=status.HTTP_201_CREATED)
+    
 class ResultDataViewSet(viewsets.ModelViewSet):
     queryset = ResultData.objects.all()
     serializer_class = ResultDataSerializer
