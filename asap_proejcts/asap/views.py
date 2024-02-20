@@ -68,8 +68,8 @@ class ResultDataViewSet(viewsets.ModelViewSet):
 
 #############-----------\
 import time
-from draw_image import draw_filtered_image_by_DALLE, draw_image_by_SD
-from edit_image import add_images
+from pictures.draw_image import draw_filtered_image_by_DALLE, draw_image_by_SD
+from pictures.edit_image import add_images
 # from eval_image import evalulate_image
 #생성시간 나중에 테이블 추가
         # 데이터베이스에서 필요한 정보들을 읽어오는 함수 호출 -> 디비 데이터변수명 수정

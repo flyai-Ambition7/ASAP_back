@@ -21,8 +21,8 @@ class ItemInfo(CommonInfo, models.Model):
 
 # summarized_copy, text_prompt, background_prompt, result_image_url
 class ResultData(CommonInfo, models.Model):
-    summarized_copy = models.CharField(max_length=100, blank=True) # gpt를 이용해 생성된 광고문구
-    text_prompt = models.CharField(max_length=100, blank=True) # 텍스트 이미지를 생성하기 위한 프롬프트
+    summarized_copy = models.CharField(max_length=200, blank=True) # gpt를 이용해 생성된 광고문구
+    text_prompt = models.CharField(max_length=200, blank=True) # 텍스트 이미지를 생성하기 위한 프롬프트
     background_prompt = models.CharField(max_length=100, blank=True) # 배경 이미지를 생성하기 위한 프롬프트 
     result_image_url = models.ImageField(blank=True, upload_to='result_image') # 최종 출력 이미지
     # keyword = models.CharField(max_length=100, blank=True) # gpt를 이용해 생성된 키워드
