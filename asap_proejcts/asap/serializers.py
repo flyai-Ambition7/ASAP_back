@@ -45,12 +45,12 @@ class ItemInfoSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class GeneratedDataSerializer(serializers.ModelSerializer):
-    result_image_url = Base64ImageField()
     class Meta:
         model = GeneratedData
         fields = '__all__'
 
 class ResultImageSerializer(serializers.ModelSerializer):
+    #result_image_url = Base64ImageField()
     class Meta:
         model = ResultImage
         fields = '__all__'
