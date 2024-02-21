@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import ItemInfo, ResultData
+from .models import ItemInfo, GeneratedData, ResultImage
 from django.core.files.base import ContentFile
 import base64
 import six
@@ -44,10 +44,15 @@ class ItemInfoSerializer(serializers.ModelSerializer):
         model = ItemInfo
         fields = '__all__'
 
-class ResultDataSerializer(serializers.ModelSerializer):
+class GeneratedDataSerializer(serializers.ModelSerializer):
     result_image_url = Base64ImageField()
     class Meta:
-        model = ResultData
+        model = GeneratedData
+        fields = '__all__'
+
+class ResultImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ResultImage
         fields = '__all__'
 
 #--------------------
