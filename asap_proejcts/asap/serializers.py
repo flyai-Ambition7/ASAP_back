@@ -37,9 +37,9 @@ class Base64ImageField(serializers.ImageField):   #디코딩 입력
         return extension
 
 class ItemInfoSerializer(serializers.ModelSerializer):
-    image = Base64ImageField(
-        max_length=None, use_url=True, required=False
-    )
+    # image = Base64ImageField(
+    #     max_length=None, use_url=True, required=False
+    # )
     class Meta:
         model = ItemInfo
         fields = '__all__'
@@ -50,7 +50,9 @@ class GeneratedDataSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class ResultImageSerializer(serializers.ModelSerializer):
-    #result_image_url = Base64ImageField()
+    # result_image_url = Base64ImageField(
+    #     max_length=None, use_url=True, required=False
+    # )
     class Meta:
         model = ResultImage
         fields = '__all__'
