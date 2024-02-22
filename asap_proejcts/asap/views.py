@@ -51,7 +51,7 @@ class TextImageGenerator():
 
     # OpenAI DALL-E를 사용하여 이미지 생성하는 함수
     def draw_image_by_dalle(self):
-        prompt = f'Text "{self.text}" on a white background, minimalism' # text 이미지를 생성하기 위한 프롬프트
+        prompt = f"Text '{self.text}' on a white background, minimalism" # text 이미지를 생성하기 위한 프롬프트
 
         client = openai(api_key=OPENAI_API_KEY)
         # DALL-E 모델을 사용하여 주어진 프롬프트로 이미지를 생성합니다. 이미지 크기는 1792x1024, 품질은 hd, 생성할 이미지 수는 1입니다.
@@ -135,7 +135,6 @@ class TextImageGenerator():
         #         DALLE_img_1st, DALLE_acc_1st = img, acc
         #         if acc > 0.99:
         #             break
-        print(Image.open(DALLE_img_1st))
         return (Image.open(DALLE_img_1st)) # 정확도가 가장 높은 텍스트 이미지 반환     
 
 # SD를 이용해서 배경 이미지를 생성
@@ -167,10 +166,10 @@ class BgImageGenerator(): #img, product_name, description,theme, result_type
         # 긍정적 및 부정적 프롬프트 설정
         prompt = f"create an advertising image for {self.result_type} suitable for promoting {self.result_type}."
         pos = f"{self.theme}"
-        neg = f"text, {self.product_name}, worst, bad, (distorted:1.3), (deformed:1.3), (blurry:1.3), out of frame, duplicate, (text:1.3), (render:1.3)"
+        neg = f"text, worst, bad, (distorted:1.3), (deformed:1.3), (blurry:1.3), out of frame, duplicate, (text:1.3), (render:1.3)"
 
         # 각 이미지에 대해 다른 무작위 시드를 사용하여 결과 다양성 보장
-        generator = [torch.Generator(device="cuda").manual_seed(i) for i in range(2)]
+        #generator = [torch.Generator(device="cuda").manual_seed(i) for i in range(2)]
 
         # 모델을 호출하여 이미지 생성
         img_output = pipe(
@@ -181,10 +180,9 @@ class BgImageGenerator(): #img, product_name, description,theme, result_type
             num_inference_steps=35,  # 인퍼런스 단계 수 설정
             strength=0.99,  # 변화 강도 설정 (1.0에 가까울수록 원본에서 큰 변화)
             num_images_per_prompt=2,  # 프롬프트 당 생성할 이미지 수
-            generator=generator  # 무작위 시드 제너레이터
+            #generator=generator  # 무작위 시드 제너레이터
 
         ).images[1]  # 생성된 이미지 중 두 번째 이미지 선택
-        print(Image.fromarray(np.array(img_output)))
 
         # 생성된 이미지를 PIL.Image 객체로 변환하여 반환
         return Image.fromarray(np.array(img_output))
@@ -198,19 +196,41 @@ class ImageSynthesizer():
         self.theme = theme
 
     def add_images(self):
-        text_img, bg_img = list(map(lambda img:np.array(img),[self.text_image, self.bg_image]))
+        text_image, back_image = list(map(lambda img:np.array(img),[self.text_image, self.bg_image]))
+        # back_image의 크기를 가져옴
+        back_height, back_width, _ = back_image.shape
+        # text_image를 back_image의 9분의 1 비율로 크기 조정
+        text_image_resize = cv2.resize(text_image, (back_width // 3, back_height // 3))
+        # 텍스트 이미지 마스크 생성
+        gray = cv2.cvtColor(text_image_resize, cv2.COLOR_BGR2GRAY)
+        _, binary_mask = cv2.threshold(gray, 230, 255, cv2.THRESH_BINARY_INV)
 
-        ## 마스크 생성
-        gray = cv2.cvtColor(text_img, cv2.COLOR_BGR2GRAY)
-        _, mask = cv2.threshold(gray, 230, 255, cv2.THRESH_BINARY)
-        mask = cv2.bitwise_not(mask)
+        #변수 단순화
+        dst = back_image
+        src = text_image_resize
+        mask = binary_mask
 
-        src, dst = text_img, bg_img
-        img_result = cv2.copyTo(src, mask, dst)
-        img_result = cv2.cvtColor(img_result, cv2.COLOR_BGR2RGB)
-        img_bytes = cv2.imencode('.jpg', img_result)[1].tobytes()
+        # 레이아웃 부분
+        #배경, 텍스트 가로, 세로 길이 변수에 저장
+        dst_h,dst_w = dst.shape[:2]
+        src_h,src_w = src.shape[:2]
 
-        return img_bytes
+        #텍스트를 넣고자 하는 위치값 미리 러프하게 저장 # 위치별로 더 있으나 우선 테스트용 중앙 위쪽
+        crop_centertop = dst[0:src_h, int(dst_w/2-src_w/2):int(dst_w/2+src_w/2)]
+        ###########################################################################################################
+        #배경에 텍스트 이미지 삽입
+        cv2.copyTo(src, mask, crop_centertop)
+
+        # Image 객체로 변환해서 저장하자
+        # 하위 코드 수정 필요
+        image_data = Image.fromarray(cv2.cvtColor(dst, cv2.COLOR_BGR2RGB))
+        filename = 'result_image.png'
+        file_path = os.path.join(settings.MEDIA_ROOT, filename)
+    
+        # 이미지 데이터를 파일로 저장
+        image_data.save(file_path)
+
+        return file_path
 
 class ItemInfoViewSet(viewsets.ModelViewSet):
     queryset = ItemInfo.objects.all()
@@ -221,13 +241,16 @@ class ItemInfoViewSet(viewsets.ModelViewSet):
         if item_info_serializer.is_valid():
             item_info = item_info_serializer.save()
 
-        image = Image.open(request.data.get('image')) # 홍보할 이미지
+        image = request.data.get('image') # 홍보할 이미지
         result_type = request.data.get('result_type') # 결과물 형태
         theme = request.data.get('theme') # 테마
         product_name = request.data.get('product_name') # 상품명
         description = request.data.get('description') # 세부 설명
         location = request.data.get('location')
         phone_num = request.data.get('contact')
+
+        image = Image.open(image)
+
 
         # LangChain과 통합
         llm = OpenAI(api_key=OPENAI_API_KEY, model_name="gpt-3.5-turbo-instruct")
@@ -252,26 +275,26 @@ class ItemInfoViewSet(viewsets.ModelViewSet):
         else:
             generated_text = "Generated text if not found."
 
+        print(generated_text)
         
         max_attempts = 5
 
         # 정확도가 가장 높은 텍스트 이미지 생성 (Image 형식으로 전달)
         text_image_generator = TextImageGenerator(generated_text, max_attempts)
         text_image = text_image_generator.draw_filtered_image_by_DALLE()
+        text_image.save('text_image.jpg')
 
         # 배경 이미지 생성 (Image 형식으로 전달)
         bg_image_generator = BgImageGenerator(image, product_name, description, theme, result_type)
         bg_image = bg_image_generator.draw_image_by_SD()
+        bg_image.save('bg_image.jpg')
+
 
         synthesized_image_generator = ImageSynthesizer(text_image, bg_image, phone_num, location, theme)
         synthesized_image = synthesized_image_generator.add_images() # 텍스트, 배경 이미지 합성
 
-        cv2.imwrite(settings.MEDIA_ROOT, text_image)
-        cv2.imwrite(settings.MEDIA_ROOT, bg_image)
-        cv2.imwrite(settings.MEDIA_ROOT, synthesized_image)
-
         generated_data = GeneratedData.objects.create(summarized_copy=generated_text)
-        result_image = ResultImage.objects.create(result_image=synthesized_image)
+        result_image = ResultImage.objects.create(result_image_url=synthesized_image)
         
         generated_data_serializer = GeneratedDataSerializer(generated_data)
         result_image_serializer = ResultImageSerializer(result_image)
