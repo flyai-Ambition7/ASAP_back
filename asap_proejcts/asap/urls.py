@@ -1,11 +1,10 @@
 from django.urls import path
 from rest_framework import routers
-from .views import ItemInfoViewSet, ResultDataViewSet
+from .views import ItemInfoViewSet, GeneratedDataViewSet, ResultImageViewSet
 
 router = routers.DefaultRouter()
-# router.register(r'common-info', CommonInfoViewSet)
 router.register(r'item-info', ItemInfoViewSet)
-router.register(r'result-data', ResultDataViewSet)
-
+router.register(r'generated-data', GeneratedDataViewSet)
+router.register(r'result-image', ResultImageViewSet)
 
 urlpatterns = router.urls
