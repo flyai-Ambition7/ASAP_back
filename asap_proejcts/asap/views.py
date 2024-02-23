@@ -241,7 +241,7 @@ class ItemInfoViewSet(viewsets.ModelViewSet):
         if item_info_serializer.is_valid():
             item_info = item_info_serializer.save()
 
-        image = request.data.get('image') # 홍보할 이미지
+        image_path = request.FILES.get('image') # 홍보할 이미지
         result_type = request.data.get('result_type') # 결과물 형태
         theme = request.data.get('theme') # 테마
         product_name = request.data.get('product_name') # 상품명
@@ -249,7 +249,7 @@ class ItemInfoViewSet(viewsets.ModelViewSet):
         location = request.data.get('location')
         phone_num = request.data.get('contact')
 
-        image = Image.open(image)
+        image = Image.open(image_path)
 
 
         # LangChain과 통합
@@ -274,34 +274,29 @@ class ItemInfoViewSet(viewsets.ModelViewSet):
             generated_text = generated_text['text'].strip() # gpt를 통한 홍보문구 생성
         else:
             generated_text = "Generated text if not found."
-
-        print(generated_text)
         
         max_attempts = 5
 
         # 정확도가 가장 높은 텍스트 이미지 생성 (Image 형식으로 전달)
         text_image_generator = TextImageGenerator(generated_text, max_attempts)
         text_image = text_image_generator.draw_filtered_image_by_DALLE()
-        text_image.save('text_image.jpg')
 
         # 배경 이미지 생성 (Image 형식으로 전달)
         bg_image_generator = BgImageGenerator(image, product_name, description, theme, result_type)
         bg_image = bg_image_generator.draw_image_by_SD()
-        bg_image.save('bg_image.jpg')
-
 
         synthesized_image_generator = ImageSynthesizer(text_image, bg_image, phone_num, location, theme)
         synthesized_image = synthesized_image_generator.add_images() # 텍스트, 배경 이미지 합성
 
         generated_data = GeneratedData.objects.create(summarized_copy=generated_text)
-        result_image = ResultImage.objects.create(result_image_url=synthesized_image)
+        result_image = ResultImage.objects.create(result_image_url = synthesized_image)
         
         generated_data_serializer = GeneratedDataSerializer(generated_data)
         result_image_serializer = ResultImageSerializer(result_image)
 
         # 생성된 결과를 반환
         return Response({
-                        'item_info': item_info_serializer.data,
+                        #'item_info' : item_info_serializer.data,
                         'generated_data': generated_data_serializer.data,
                         'result_image' : result_image_serializer.data
                         }, status=status.HTTP_201_CREATED)
