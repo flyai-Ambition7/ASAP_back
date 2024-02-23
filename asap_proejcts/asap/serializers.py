@@ -45,6 +45,9 @@ class ItemInfoSerializer(serializers.ModelSerializer):
     # )
     class Meta:
         model = ItemInfo
+        # fields = [
+        #     '_id', 'image', 'result_type', 'theme', 'product_name', 'description', 'location', 'contact'
+        # ]
         fields = '__all__'
 
 class GeneratedDataSerializer(serializers.ModelSerializer):

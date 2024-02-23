@@ -1,6 +1,6 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework import viewsets
+from rest_framework import viewsets, mixins
 from rest_framework import status
 from .models import ItemInfo, GeneratedData, ResultImage
 from .serializers import ItemInfoSerializer, GeneratedDataSerializer, ResultImageSerializer
@@ -42,6 +42,8 @@ import getpass
 import torch
 import os
 from django.conf import settings
+
+# 이미지 형식의 파일을 받아서, 파일 경로 반환
 
 # dall-e 를 이용해서 텍스트 이미지 생성
 class TextImageGenerator():
@@ -232,25 +234,31 @@ class ImageSynthesizer():
 
         return file_path
 
-class ItemInfoViewSet(viewsets.ModelViewSet):
+class ItemInfoViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
     queryset = ItemInfo.objects.all()
     serializer_class = ItemInfoSerializer
     
     def create(self, request, *args, **kwargs):
-        item_info_serializer = self.get_serializer(data=request.data)
-        if item_info_serializer.is_valid():
-            item_info = item_info_serializer.save()
+        # item_info_serializer = self.get_serializer(data=request.data)
+        # if item_info_serializer.is_valid():
+        #     item_info = item_info_serializer.save()
+        #     print(item_info)
+        response = super().create(request, *args, **kwargs)
+        if response.status_code is not status.HTTP_201_CREATED:
+            return Response(response)
+        
+        instance_id = response.data.get('id')
+        instance = self.get_queryset().filter(id=instance_id).first()
 
-        image_path = request.FILES.get('image') # 홍보할 이미지
-        result_type = request.data.get('result_type') # 결과물 형태
-        theme = request.data.get('theme') # 테마
-        product_name = request.data.get('product_name') # 상품명
-        description = request.data.get('description') # 세부 설명
-        location = request.data.get('location')
-        phone_num = request.data.get('contact')
+        image_path = instance.image
+        result_type = instance.result_type
+        theme = instance.theme
+        product_name = instance.product_name
+        description = instance.description
+        location = instance.location
+        phone_num = instance.contact
 
         image = Image.open(image_path)
-
 
         # LangChain과 통합
         llm = OpenAI(api_key=OPENAI_API_KEY, model_name="gpt-3.5-turbo-instruct")
@@ -296,7 +304,7 @@ class ItemInfoViewSet(viewsets.ModelViewSet):
 
         # 생성된 결과를 반환
         return Response({
-                        #'item_info' : item_info_serializer.data,
+                        # 'item_info' : item_info_serializer.data,
                         'generated_data': generated_data_serializer.data,
                         'result_image' : result_image_serializer.data
                         }, status=status.HTTP_201_CREATED)

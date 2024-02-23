@@ -4,7 +4,8 @@ from djongo import models
 
 # 공통 입력사항
 class CommonInfo(models.Model):
-    image = models.ImageField(blank=False, upload_to='input_image') # 이미지
+    id = models.ObjectIdField(primary_key = True)
+    image = models.ImageField(blank=False, upload_to='input_image/%Y/%m/%d') # 이미지
     store_name = models.CharField(max_length=50, blank=False) # 가게명
     purpose = models.CharField(max_length=50, blank=False) # 사용 목적
     result_type = models.CharField(max_length=10, blank=False) # 결과물 형태
