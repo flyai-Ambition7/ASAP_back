@@ -10,4 +10,4 @@ router.register(r'item-info', ItemInfoViewSet)
 router.register(r'generated-data', GeneratedDataViewSet)
 router.register(r'result-image', ResultImageViewSet)
 
-urlpatterns = router.urls + static('/', document_root=settings.MEDIA_ROOT)
+urlpatterns = router.urls

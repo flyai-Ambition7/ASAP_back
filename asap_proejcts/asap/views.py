@@ -51,7 +51,7 @@ class TextImageGenerator():
 
     # OpenAI DALL-E를 사용하여 이미지 생성하는 함수
     def draw_image_by_dalle(self):
-        prompt = f"Text '{self.text}' on a white background, minimalism" # text 이미지를 생성하기 위한 프롬프트
+        prompt = f"one line Text '{self.text}' on a white background, minimalism" # text 이미지를 생성하기 위한 프롬프트
 
         client = openai(api_key=OPENAI_API_KEY)
         # DALL-E 모델을 사용하여 주어진 프롬프트로 이미지를 생성합니다. 이미지 크기는 1792x1024, 품질은 hd, 생성할 이미지 수는 1입니다.
@@ -164,9 +164,9 @@ class BgImageGenerator(): #img, product_name, description,theme, result_type
         # pipe.to("cuda")  # CUDA를 사용하여 GPU에서 모델 실행
 
         # 긍정적 및 부정적 프롬프트 설정
-        prompt = f"create an advertising image for {self.result_type} suitable for promoting {self.result_type}."
-        pos = f"{self.theme}"
-        neg = f"text, worst, bad, (distorted:1.3), (deformed:1.3), (blurry:1.3), out of frame, duplicate, (text:1.3), (render:1.3)"
+        prompt = f"create an advertising background to promote {self.product_name} in the {self.result_type} advertising style."
+        pos = f"advertisement, {self.theme}, Bokeh"
+        neg = f"(person : 1.5), (woman :1.5), face, worst, bad, (distorted:1.3), (deformed:1.3), (blurry:1.3), out of frame, duplicate, (text:1.3), (render:1.3)"
 
         # 각 이미지에 대해 다른 무작위 시드를 사용하여 결과 다양성 보장
         #generator = [torch.Generator(device="cuda").manual_seed(i) for i in range(2)]
@@ -241,7 +241,7 @@ class ItemInfoViewSet(viewsets.ModelViewSet):
         if item_info_serializer.is_valid():
             item_info = item_info_serializer.save()
 
-        image = request.data.get('image') # 홍보할 이미지
+        image_path = request.FILES.get('image') # 홍보할 이미지
         result_type = request.data.get('result_type') # 결과물 형태
         theme = request.data.get('theme') # 테마
         product_name = request.data.get('product_name') # 상품명
@@ -249,7 +249,7 @@ class ItemInfoViewSet(viewsets.ModelViewSet):
         location = request.data.get('location')
         phone_num = request.data.get('contact')
 
-        image = Image.open(image)
+        image = Image.open(image_path)
 
 
         # LangChain과 통합
@@ -274,34 +274,29 @@ class ItemInfoViewSet(viewsets.ModelViewSet):
             generated_text = generated_text['text'].strip() # gpt를 통한 홍보문구 생성
         else:
             generated_text = "Generated text if not found."
-
-        print(generated_text)
         
         max_attempts = 5
 
         # 정확도가 가장 높은 텍스트 이미지 생성 (Image 형식으로 전달)
         text_image_generator = TextImageGenerator(generated_text, max_attempts)
         text_image = text_image_generator.draw_filtered_image_by_DALLE()
-        text_image.save('text_image.jpg')
 
         # 배경 이미지 생성 (Image 형식으로 전달)
         bg_image_generator = BgImageGenerator(image, product_name, description, theme, result_type)
         bg_image = bg_image_generator.draw_image_by_SD()
-        bg_image.save('bg_image.jpg')
-
 
         synthesized_image_generator = ImageSynthesizer(text_image, bg_image, phone_num, location, theme)
         synthesized_image = synthesized_image_generator.add_images() # 텍스트, 배경 이미지 합성
 
         generated_data = GeneratedData.objects.create(summarized_copy=generated_text)
-        result_image = ResultImage.objects.create(result_image_url=synthesized_image)
+        result_image = ResultImage.objects.create(result_image_url = synthesized_image)
         
         generated_data_serializer = GeneratedDataSerializer(generated_data)
         result_image_serializer = ResultImageSerializer(result_image)
 
         # 생성된 결과를 반환
         return Response({
-                        'item_info': item_info_serializer.data,
+                        #'item_info' : item_info_serializer.data,
                         'generated_data': generated_data_serializer.data,
                         'result_image' : result_image_serializer.data
                         }, status=status.HTTP_201_CREATED)

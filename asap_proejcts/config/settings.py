@@ -64,7 +64,6 @@ REST_FRAMEWORK = {
 }
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware', 
     'django.middleware.common.CommonMiddleware', 
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -79,6 +78,7 @@ MIDDLEWARE = [
 # CORS 설정 추가
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # 프론트엔드 도메인
+    "http://127.0.0.1:4040",
     # 실제 배포 도메인 추가
 ]
 
