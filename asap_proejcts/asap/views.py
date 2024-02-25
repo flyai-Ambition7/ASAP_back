@@ -53,7 +53,7 @@ class TextImageGenerator():
 
     # OpenAI DALL-E를 사용하여 이미지 생성하는 함수
     def draw_image_by_dalle(self):
-        prompt = f"one line Text '{self.text}' on a white background, minimalism" # text 이미지를 생성하기 위한 프롬프트
+        prompt = f"Text '{self.text}' on a white background, minimalism" # text 이미지를 생성하기 위한 프롬프트
 
         client = openai(api_key=OPENAI_API_KEY)
         # DALL-E 모델을 사용하여 주어진 프롬프트로 이미지를 생성합니다. 이미지 크기는 1792x1024, 품질은 hd, 생성할 이미지 수는 1입니다.
@@ -190,7 +190,8 @@ class BgImageGenerator(): #img, product_name, description,theme, result_type
         return Image.fromarray(np.array(img_output))
 
 class ImageSynthesizer():
-    def __init__(self, text_image, bg_image, phone_num, location, theme):
+    def __init__(self, id, text_image, bg_image, phone_num, location, theme):
+        self.id = id
         self.text_image = text_image
         self.bg_image = bg_image
         self.phone_num = phone_num
@@ -201,11 +202,11 @@ class ImageSynthesizer():
         text_image, back_image = list(map(lambda img:np.array(img),[self.text_image, self.bg_image]))
         # back_image의 크기를 가져옴
         back_height, back_width, _ = back_image.shape
-        # text_image를 back_image의 9분의 1 비율로 크기 조정
-        text_image_resize = cv2.resize(text_image, (back_width // 3, back_height // 3))
+        # text_image를 back_image의 3분의 1 비율로 크기 조정
+        text_image_resize = cv2.resize(text_image, (back_width, back_height // 3))
         # 텍스트 이미지 마스크 생성
         gray = cv2.cvtColor(text_image_resize, cv2.COLOR_BGR2GRAY)
-        _, binary_mask = cv2.threshold(gray, 230, 255, cv2.THRESH_BINARY_INV)
+        binary_mask = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 467, 37)
 
         #변수 단순화
         dst = back_image
@@ -225,28 +226,25 @@ class ImageSynthesizer():
 
         # Image 객체로 변환해서 저장하자
         # 하위 코드 수정 필요
-        image_data = Image.fromarray(cv2.cvtColor(dst, cv2.COLOR_BGR2RGB))
-        filename = 'result_image.png'
+        image_data = Image.fromarray(dst)
+        filename = f'result_image{self.id}.png'
         file_path = os.path.join(settings.MEDIA_ROOT, filename)
     
         # 이미지 데이터를 파일로 저장
         image_data.save(file_path)
 
         return file_path
-
+    
+# 사용자에게 입력받은 정보로 작업을 마친 후, response 성공 여부만 반환
 class ItemInfoViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
     queryset = ItemInfo.objects.all()
     serializer_class = ItemInfoSerializer
     
     def create(self, request, *args, **kwargs):
-        # item_info_serializer = self.get_serializer(data=request.data)
-        # if item_info_serializer.is_valid():
-        #     item_info = item_info_serializer.save()
-        #     print(item_info)
         response = super().create(request, *args, **kwargs)
         if response.status_code is not status.HTTP_201_CREATED:
             return Response(response)
-        
+        print(response)
         instance_id = response.data.get('id')
         instance = self.get_queryset().filter(id=instance_id).first()
 
@@ -293,7 +291,7 @@ class ItemInfoViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
         bg_image_generator = BgImageGenerator(image, product_name, description, theme, result_type)
         bg_image = bg_image_generator.draw_image_by_SD()
 
-        synthesized_image_generator = ImageSynthesizer(text_image, bg_image, phone_num, location, theme)
+        synthesized_image_generator = ImageSynthesizer(instance_id, text_image, bg_image, phone_num, location, theme)
         synthesized_image = synthesized_image_generator.add_images() # 텍스트, 배경 이미지 합성
 
         generated_data = GeneratedData.objects.create(summarized_copy=generated_text)
@@ -302,17 +300,27 @@ class ItemInfoViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
         generated_data_serializer = GeneratedDataSerializer(generated_data)
         result_image_serializer = ResultImageSerializer(result_image)
 
-        # 생성된 결과를 반환
         return Response({
-                        # 'item_info' : item_info_serializer.data,
-                        'generated_data': generated_data_serializer.data,
-                        'result_image' : result_image_serializer.data
+                        'message': '작업이 성공적으로 완료되었습니다.'
                         }, status=status.HTTP_201_CREATED)
-    
-class GeneratedDataViewSet(viewsets.ModelViewSet):
-    queryset = GeneratedData.objects.all()
-    serializer_class = GeneratedDataSerializer
 
-class ResultImageViewSet(viewsets.ModelViewSet):
+        # 생성된 결과를 반환
+        # return Response({
+        #                 'result_image' : result_image_serializer.data
+        #                 }, status=status.HTTP_201_CREATED)
+    
+
+class ResultImageViewset(viewsets.ReadOnlyModelViewSet):
     queryset = ResultImage.objects.all()
     serializer_class = ResultImageSerializer
+
+    # def list(self, request, *args, **kwargs):
+    # # ResultImage 객체 중 마지막 객체를 가져옵니다.
+    #     last_image = ResultImage.objects.last()
+    #     if last_image:
+    #         # 마지막 이미지가 존재하면, 해당 이미지의 URL만 직렬화하여 반환합니다.
+    #         serializer = self.get_serializer(last_image)
+    #         print(serializer.data)
+    #         return Response({serializer.data['result_image_url']}, status=status.HTTP_200_OK)
+    #     else:
+    #         return Response({"error": "No images found."}, status=status.HTTP_404_NOT_FOUND)
