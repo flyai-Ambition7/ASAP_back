@@ -2,8 +2,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import viewsets, mixins
 from rest_framework import status
-from .models import ItemInfo, GeneratedData, ResultImage
-from .serializers import ItemInfoSerializer, GeneratedDataSerializer, ResultImageSerializer
+from .models import ItemInfo, ResultImage
+from .serializers import ItemInfoSerializer, ResultImageSerializer
 
 # API KEYs
 from config.settings import OPENAI_API_KEY, HUGGINGFACE_API_KEY, AZURE_ENDPOINT, AZURE_SUBSCRIPTION_KEY
@@ -42,6 +42,8 @@ import getpass
 import torch
 import os
 from django.conf import settings
+from django.core.files.base import ContentFile
+
 
 # 이미지 형식의 파일을 받아서, 파일 경로 반환
 
@@ -129,6 +131,7 @@ class TextImageGenerator():
         DALLE_img_1st, DALLE_score_1st = 0, 0 # 정확도가 가장 높은 값 초기화
         DALLE_img_1st = self.draw_image_by_dalle()
         
+        # OCR
         # for _ in range(self.max_attempts): # max_attempts 만큼 반복
         #     img = self.draw_image_by_dalle() # dalle를 이용해서 이미지 생성
         #     acc = self.evalulate_image(img) # evaluate_image 함수를 통해 코사인 유사도 계산
@@ -190,8 +193,7 @@ class BgImageGenerator(): #img, product_name, description,theme, result_type
         return Image.fromarray(np.array(img_output))
 
 class ImageSynthesizer():
-    def __init__(self, id, text_image, bg_image, phone_num, location, theme):
-        self.id = id
+    def __init__(self, text_image, bg_image, phone_num, location, theme):
         self.text_image = text_image
         self.bg_image = bg_image
         self.phone_num = phone_num
@@ -225,20 +227,20 @@ class ImageSynthesizer():
         cv2.copyTo(src, mask, crop_centertop)
 
         # Image 객체로 변환해서 저장하자
-        # 하위 코드 수정 필요
         image_data = Image.fromarray(dst)
-        filename = f'result_image{self.id}.png'
-        file_path = os.path.join(settings.MEDIA_ROOT, filename)
+        # filename = f'result_image{self.id}.png'
+        # file_path = os.path.join(settings.MEDIA_ROOT, filename)
     
-        # 이미지 데이터를 파일로 저장
-        image_data.save(file_path)
+        # # 이미지 데이터를 파일로 저장
+        # image_data.save(file_path)
 
-        return file_path
+        return image_data
     
 # 사용자에게 입력받은 정보로 작업을 마친 후, response 성공 여부만 반환
 class ItemInfoViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
     queryset = ItemInfo.objects.all()
     serializer_class = ItemInfoSerializer
+
     
     def create(self, request, *args, **kwargs):
         response = super().create(request, *args, **kwargs)
@@ -291,36 +293,27 @@ class ItemInfoViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
         bg_image_generator = BgImageGenerator(image, product_name, description, theme, result_type)
         bg_image = bg_image_generator.draw_image_by_SD()
 
-        synthesized_image_generator = ImageSynthesizer(instance_id, text_image, bg_image, phone_num, location, theme)
+        synthesized_image_generator = ImageSynthesizer(text_image, bg_image, phone_num, location, theme)
         synthesized_image = synthesized_image_generator.add_images() # 텍스트, 배경 이미지 합성
 
-        generated_data = GeneratedData.objects.create(summarized_copy=generated_text)
-        result_image = ResultImage.objects.create(result_image_url = synthesized_image)
-        
-        generated_data_serializer = GeneratedDataSerializer(generated_data)
-        result_image_serializer = ResultImageSerializer(result_image)
+        image_io = BytesIO()
+        synthesized_image.save(image_io, format='JPEG')  # 이미지 포맷 지정
+        image_io.seek(0)  # 스트림의 시작으로 포인터 이동
+
+        # ContentFile을 사용하여 임시 파일 객체 생성
+        temp_name = f'result_image{instance_id}.jpg'  # 임시 파일명, 필요에 따라 동적으로 생성 가능
+        temp_file = ContentFile(image_io.read(), temp_name)
+
+        # ResultImage 모델 인스턴스 생성 및 이미지 저장
+        result_image_instance = ResultImage()
+        result_image_instance.result_image_url.save(temp_name, temp_file, save=True)
+        print(result_image_instance.result_image_url)
 
         return Response({
                         'message': '작업이 성공적으로 완료되었습니다.'
                         }, status=status.HTTP_201_CREATED)
 
-        # 생성된 결과를 반환
-        # return Response({
-        #                 'result_image' : result_image_serializer.data
-        #                 }, status=status.HTTP_201_CREATED)
-    
 
 class ResultImageViewset(viewsets.ReadOnlyModelViewSet):
     queryset = ResultImage.objects.all()
     serializer_class = ResultImageSerializer
-
-    # def list(self, request, *args, **kwargs):
-    # # ResultImage 객체 중 마지막 객체를 가져옵니다.
-    #     last_image = ResultImage.objects.last()
-    #     if last_image:
-    #         # 마지막 이미지가 존재하면, 해당 이미지의 URL만 직렬화하여 반환합니다.
-    #         serializer = self.get_serializer(last_image)
-    #         print(serializer.data)
-    #         return Response({serializer.data['result_image_url']}, status=status.HTTP_200_OK)
-    #     else:
-    #         return Response({"error": "No images found."}, status=status.HTTP_404_NOT_FOUND)
