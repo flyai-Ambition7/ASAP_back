@@ -106,18 +106,18 @@ class TextImageGenerator():
         operation_id = read_operation_location.split("/")[-1]
 
         # ocr 진행
-        while True:
-            read_result = computervision_client.get_read_result(operation_id)
-            if read_result.status not in ['notStarted', 'running']:
-                break
-            time.sleep(1)
+        # while True:
+        #     read_result = computervision_client.get_read_result(operation_id)
+        #     if read_result.status not in ['notStarted', 'running']:
+        #         break
+        #     time.sleep(1)
 
-        text = ""
-        if read_result.status == OperationStatusCodes.succeeded:
-            for text_result in read_result.analyze_result.read_results:
-                for text_line in text_result.lines:
-                    text += text_line.text + " "
-        return text
+        # text = ""
+        # if read_result.status == OperationStatusCodes.succeeded:
+        #     for text_result in read_result.analyze_result.read_results:
+        #         for text_line in text_result.lines:
+        #             text += text_line.text + " "
+        # return text
     
     # 생성된 텍스트 이미지의 cosine simillarity를 계산하는 함수
     def evalulate_image(self, img):
