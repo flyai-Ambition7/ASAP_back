@@ -8,7 +8,7 @@ class CommonInfo(models.Model):
     image = models.ImageField(blank=False, upload_to='input_image/%Y/%m/%d') # 이미지
     store_name = models.CharField(max_length=50, blank=False) # 가게명
     purpose = models.CharField(max_length=50, blank=False) # 사용 목적
-    result_type = models.CharField(max_length=10, blank=False) # 결과물 형태
+    result_type = models.CharField(max_length=30, blank=False) # 결과물 형태
     theme = models.CharField(max_length=50, blank=False) #결과물 테마
 
 # 상품을 홍보하는 경우   

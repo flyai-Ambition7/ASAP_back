@@ -40,14 +40,11 @@ class Base64ImageField(serializers.ImageField):   #디코딩 입력
     
 
 class ItemInfoSerializer(serializers.ModelSerializer):
-    # image = Base64ImageField(
-    #     max_length=None, use_url=True, required=False
-    # )
+    image = Base64ImageField(
+        max_length=None, use_url=True, required=False
+    )
     class Meta:
         model = ItemInfo
-        # fields = [
-        #     '_id', 'image', 'result_type', 'theme', 'product_name', 'description', 'location', 'contact'
-        # ]
         fields = '__all__'
 
 class GeneratedDataSerializer(serializers.ModelSerializer):
@@ -56,12 +53,9 @@ class GeneratedDataSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class ResultImageSerializer(serializers.ModelSerializer):
-    result_image_url = Base64ImageField(
-        max_length=None, use_url=True, required=False
-    )
     class Meta:
         model = ResultImage
-        fields = '__all__'
+        fields = ['result_image_url']
 
 #--------------------
 # # 인코딩 혹시나 모르기에
