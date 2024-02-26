@@ -27,6 +27,7 @@ Django==4.1.13
 django-cors-headers==4.3.1
 django-environ==0.11.2
 django-mongodb-engine==0.6.0
+django-sslserver==0.22
 djangorestframework==3.14.0
 djangorestframework-simplejwt==5.3.1
 djangotoolbox==1.8.0

@@ -21,7 +21,7 @@ class ItemInfo(CommonInfo, models.Model):
     contact = models.CharField(max_length=20, blank=True) # 가게 전화번호
 
 class GeneratedData(models.Model):
-    summarized_copy = models.CharField(max_length=200, blank=True) # gpt를 이용해 생성된 광고문구
+    summarized_copy = models.CharField(max_length=30, blank=True) # gpt를 이용해 생성된 광고문구
     theme_color = models.CharField(max_length=20, blank=True) #gpt를 통해 생성될 연관 컬러 
 
 class ResultImage(models.Model):
