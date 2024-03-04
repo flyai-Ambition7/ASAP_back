@@ -43,6 +43,9 @@ import torch
 import os
 from django.conf import settings
 from django.core.files.base import ContentFile
+import random
+from PIL import ImageFont
+from PIL import ImageDraw
 
 
 # 이미지 형식의 파일을 받아서, 파일 경로 반환
@@ -235,7 +238,7 @@ class ImageSynthesizer():
         # image_data.save(file_path)
 
         return image_data
-    
+
 # 사용자에게 입력받은 정보로 작업을 마친 후, response 성공 여부만 반환
 class ItemInfoViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
     queryset = ItemInfo.objects.all()
@@ -288,10 +291,12 @@ class ItemInfoViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
         # 정확도가 가장 높은 텍스트 이미지 생성 (Image 형식으로 전달)
         text_image_generator = TextImageGenerator(generated_text, max_attempts)
         text_image = text_image_generator.draw_filtered_image_by_DALLE()
+        text_image.save('text_image.jpg')
 
         # 배경 이미지 생성 (Image 형식으로 전달)
         bg_image_generator = BgImageGenerator(image, product_name, description, theme, result_type)
         bg_image = bg_image_generator.draw_image_by_SD()
+        bg_image.save('bg_image.jpg')
 
         synthesized_image_generator = ImageSynthesizer(text_image, bg_image, phone_num, location, theme)
         synthesized_image = synthesized_image_generator.add_images() # 텍스트, 배경 이미지 합성
@@ -307,7 +312,6 @@ class ItemInfoViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
         # ResultImage 모델 인스턴스 생성 및 이미지 저장
         result_image_instance = ResultImage()
         result_image_instance.result_image_url.save(temp_name, temp_file, save=True)
-        print(result_image_instance.result_image_url)
 
         return Response({
                         'message': '작업이 성공적으로 완료되었습니다.'
