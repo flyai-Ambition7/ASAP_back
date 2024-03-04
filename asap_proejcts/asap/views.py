@@ -22,7 +22,6 @@ from rembg import remove # rembg 패키지에서 remove 클래스 불러오기
 import matplotlib.pyplot as plt
 import requests
 from io import BytesIO
-import time
 
 # AZURE OCR 라이브러리
 from azure.cognitiveservices.vision.computervision import ComputerVisionClient
@@ -38,14 +37,12 @@ from nltk.stem import WordNetLemmatizer
 from diffusers import AutoPipelineForInpainting, DPMSolverMultistepScheduler
 from diffusers.utils import load_image
 
-import getpass
 import torch
-import os
 from django.conf import settings
 from django.core.files.base import ContentFile
 import random
-from PIL import ImageFont
-from PIL import ImageDraw
+# from PIL import ImageFont
+# from PIL import ImageDraw
 
 
 # 이미지 형식의 파일을 받아서, 파일 경로 반환
@@ -61,7 +58,7 @@ class TextImageGenerator():
         prompt = f"Text '{self.text}' on a white background, minimalism" # text 이미지를 생성하기 위한 프롬프트
 
         client = openai(api_key=OPENAI_API_KEY)
-        # DALL-E 모델을 사용하여 주어진 프롬프트로 이미지를 생성합니다. 이미지 크기는 1792x1024, 품질은 hd, 생성할 이미지 수는 1입니다.
+        # DALL-E 모델을 사용하여 주어진 프롬프트로 이미지를 생성합니다. 이미지 크기는 1792x1024, 품질은 hd, 생성할 이미지 수는 1입니다.q
         response = client.images.generate(
             model="dall-e-3",
             prompt=prompt,
