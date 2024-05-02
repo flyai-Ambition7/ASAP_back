@@ -12,6 +12,7 @@
 ## Installation 💻
 
 ### .env 파일 설정
+
 ```python
 SECRET_KEY=""
 OPENAI_API_KEY=""
@@ -22,12 +23,15 @@ DEBUG=True
 ```
 
 ### library 설치
+
 ```python
 pip install -r requirements.txt
 ```
+
 <br></br>
 
 ## directory 구조 🌳
+
 ```python
 asap_proejcts
  ┃
