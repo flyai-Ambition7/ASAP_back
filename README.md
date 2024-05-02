@@ -1,19 +1,94 @@
-# ASAP_back
-ASAP 백엔드
+# ASAP_Backend
+
+<div>
+    <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-plastic&logo=Python&logoColor=white">
+    <img src="https://img.shields.io/badge/Django-092E20?style=for-the-plastic&logo=Django&logoColor=white">
+    <img src="https://img.shields.io/badge/MongoDB-47A248?style=for-the-plastic&logo=MongoDB&logoColor=white">
+    <img src="https://img.shields.io/badge/OpenAI-412991?style=for-the-plastic&logo=OpenAI&logoColor=white">
+
+</div>  
+<br></br>
+
+## Installation 💻
+
+### .env 파일 설정
+
+```python
+SECRET_KEY=""
+OPENAI_API_KEY=""
+HUGGINGFACE_API_KEY=""
+AZURE_SUBSCRIPTION_KEY=""
+AZURE_ENDPOINT=""
+DEBUG=True
+```
+
+### library 설치
 
 ```python
 pip install -r requirements.txt
 ```
 
-# 커밋 룰
+<br></br>
+
+## directory 구조 🌳
+
+```python
+asap_proejcts
+ ┃
+ ┣ config  # 프로젝트 설정과 루트 앱
+ ┃ ┣ __pycache__
+ ┃ ┣ asgi.py
+ ┃ ┣ settings.py  # 프로젝트 설정
+ ┃ ┣ urls.py  # 프로젝트 URL 매핑
+ ┃ ┣ wsgi.py
+ ┃ ┗ __init__.py
+ ┃
+ ┣ asap  # 메인 기능 관련
+ ┃ ┣ migrations
+ ┃ ┣ __pycache__
+ ┃ ┣ .DS_Store
+ ┃ ┣ admin.py
+ ┃ ┣ apps.py
+ ┃ ┣ models.py  # 앱 모델 정의
+ ┃ ┣ serializers.py  # 객체를 JSON 형식으로 변환
+ ┃ ┣ tests.py
+ ┃ ┣ urls.py  # 앱 URL 매핑
+ ┃ ┣ views.py  # 앱 뷰 함수
+ ┃ ┗ __init__.py
+ ┃
+ ┣ users  # 유저 관련 앱
+ ┃ ┣ migrations
+ ┃ ┣ __pycache__
+ ┃ ┣ .DS_Store
+ ┃ ┣ admin.py
+ ┃ ┣ apps.py
+ ┃ ┣ models.py  # 앱 모델 정의
+ ┃ ┣ serializers.py  # 객체를 JSON 형식으로 변환
+ ┃ ┣ tests.py
+ ┃ ┣ urls.py  # 앱 URL 매핑
+ ┃ ┣ views.py  # 앱 퓨 함수
+ ┃ ┗ __init__.py
+ ┃
+ ┣ media (Dir)
+ ┃ ┣ input_image  # 입력 이미지
+ ┃ ┗ result_image  # 최종 결과물 이미지
+ ┃
+ ┣ .DS_Store
+ ┣ .env  # 보안 key 정보
+ ┗ manage.py  # Django 명령어 관리 파일
+```
+
+<br></br>
+
+## 커밋 룰
 
 **git 커밋 룰**을 이용해 **더 나은 로그 가독성, 리뷰 프로세스, 코드 유지 보수**를 하고자 한다.
 
-## 커밋 메세지 구조
+### 커밋 메세지 구조
 
 커밋 메세지는 **Head, Body, Footer**로 구성한다. 제목을 제외한 나머지는 옵션이다.
 
-### 형식
+#### 형식
 
 > Head 타입 : [#이슈 번호 - ]
 >
@@ -21,7 +96,7 @@ pip install -r requirements.txt
 >
 > Footer(옵션)
 
-### 타입
+#### 타입
 
 커밋 메세지가 **어떤 의도**를 가진 메세지인지 알린다.
 **태그와 제목**으로 구성되어 있고 사용법은 **태그: 제목**의 형태이다. (`: 뒤에 space 주의!`)
@@ -82,7 +157,7 @@ pip install -r requirements.txt
     </tr>
 </table>
 
-### HEAD
+#### HEAD
 
 제목은 메세지의 **짧은 요약**입니다. 다음과 같은 규칙을 가진다.
 
@@ -91,7 +166,7 @@ pip install -r requirements.txt
 3. 마지막에 **특수문자 삽입 X**
 4. **개조식** 구문 ( 간결, 요점적인 서술 )
 
-### BODY
+#### BODY
 
 본문은 다음과 같은 규칙을 가진다.
 
@@ -99,7 +174,7 @@ pip install -r requirements.txt
 2. **최대한 상세히 작성**
 3. 어떻게보단 **무엇, 왜**에 중점적으로 작성한다.
 
-### FOOTER
+#### FOOTER
 
 1. **이슈 트래커 ID**를 작성한다. `"유형: #이슈 번호"`
 
